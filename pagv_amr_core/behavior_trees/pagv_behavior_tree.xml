@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<root BTCPP_format="4">
+    <BehaviorTree ID="PAGV_MainTree">
+        <ReactiveSequence name="Root_20Hz">
+            
+            <!-- Layer 0: Mode Control -->
+            <Fallback name="ModeLayer">
+                <!-- Emergency Mode (최우선) -->
+                <Sequence name="EmergencyMode">
+                    <CheckEmergency/>
+                    <Action ID="HandleEmergency"/>
+                </Sequence>
+                
+                <!-- Manual Mode -->
+                <Sequence name="ManualMode">
+                    <CheckManualMode/>
+                    <Action ID="HandleManualMode"/>
+                </Sequence>
+                
+                <!-- Auto Mode -->
+                <Sequence name="AutoMode">
+                    <CheckAutoMode/>
+                    <Fallback name="AutoState">
+                        <Sequence name="AutoReady">
+                            <Condition ID="IsAutoReady"/>
+                            <Action ID="WaitMission"/>
+                        </Sequence>
+                        
+                        <Sequence name="AutoMoving">
+                            <Condition ID="IsAutoMoving"/>
+                            <Action ID="ExecuteMission"/>
+                        </Sequence>
+                    </Fallback>
+                </Sequence>
+            </Fallback>
+            
+            <!-- Layer 1: Safety -->
+            <Fallback name="SafetyLayer">
+                <Sequence name="FaultDetection">
+                    <CheckFaults/>
+                    <Action ID="TriggerEmergency"/>
+                </Sequence>
+                
+                <Sequence name="CollisionPrevention">
+                    <CheckCollisionRisk/>
+                    <Action ID="SlowDown"/>
+                </Sequence>
+                
+                <Sequence name="BatteryManagement">
+                    <CheckBatteryLevel/>
+                    <Action ID="RequestCharging"/>
+                </Sequence>
+                
+                <AlwaysSuccess/>
+            </Fallback>
+            
+            <!-- Layer 2: System -->
+            <Sequence name="SystemLayer">
+                <CheckSystemInitialized/>
+                <AlwaysSuccess/>
+            </Sequence>
+            
+            <!-- Layer 3: Mission -->
+            <Sequence name="MissionLayer">
+                <CheckMissionActive/>
+                <ExecuteOrderNode/>
+            </Sequence>
+            
+            <!-- Layer 4: Navigation -->
+            <Sequence name="NavigationLayer">
+                <Condition ID="NavigationActive"/>
+                <NavigationControlNode/>
+                <PublishCmdVelNode/>
+            </Sequence>
+            
+        </ReactiveSequence>
+    </BehaviorTree>
+</root>
