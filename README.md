@@ -56,13 +56,13 @@ mosquitto_pub -h localhost -t "agv/v2/ZENIXROBOTICS/0000/order" -f curve.json
 # Data Flow(Order -> 주행)
 
 # Todo
-1. 프로젝트 폴더 및 파일 구조 설계-done
-2. VDA5050_Protocol-done
-3. pagv_amr_core-done
-4. navigation_manager-done
-5. motion_controller-done
-6. localizer-done
-7. system_layer-done
+1. 프로젝트 폴더 및 파일 구조 설계[done]
+2. VDA5050_Protocol[done]
+3. pagv_amr_core[done]
+4. navigation_manager[done]
+5. motion_controller[done]
+6. localizer[done]
+7. system_layer[done]
 8. mode_layer
 9. safety_layer
 10. sequence_check
