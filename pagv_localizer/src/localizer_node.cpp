@@ -1,6 +1,7 @@
 #include "pagv_localizer/localizer_node.hpp"
 
-namespace pagv_localizer {
+namespace pagv_localizer 
+{
 
 LocalizerNode::LocalizerNode()
     : Node("localizer_node")
@@ -97,7 +98,8 @@ void LocalizerNode::dead_reckoning_update()
     
     //각속도 계산
     double angular_velocity = 0.0;
-    if (std::abs(avg_velocity) > 0.01) {
+    if (std::abs(avg_velocity) > 0.01) 
+    {
         // 전륜과 후륜의 tan차이로 계산
         angular_velocity = (avg_velocity / wheelbase_) * (std::tan(delta_f) - std::tan(delta_r));
     }

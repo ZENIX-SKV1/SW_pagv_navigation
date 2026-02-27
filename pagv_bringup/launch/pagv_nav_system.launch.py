@@ -5,14 +5,7 @@ from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 
-def generate_launch_description():
-    # Launch arguments
-    agv_id_arg = DeclareLaunchArgument(
-        'agv_id',
-        default_value='AGV001',
-        description='AGV ID for VDA5050'
-    )
-    
+def generate_launch_description():    
     mqtt_broker_arg = DeclareLaunchArgument(
         'mqtt_broker',
         default_value='tcp://localhost:1883',
@@ -26,7 +19,6 @@ def generate_launch_description():
         name='amr_core',
         output='screen',
         parameters=[{
-            'agv_id': LaunchConfiguration('agv_id'),
             'mqtt_broker': LaunchConfiguration('mqtt_broker'),
             'control_rate': 20.0
         }]
@@ -52,7 +44,6 @@ def generate_launch_description():
     )
     
     return LaunchDescription([
-        agv_id_arg,
         mqtt_broker_arg,
         amr_core_node,
         motion_controller_node,

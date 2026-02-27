@@ -7,16 +7,24 @@
 #include <array>
 #include <cmath>
 
-namespace pagv_motion_controller {
+namespace pagv_motion_controller 
+{
 
-struct VehicleConfig {
+struct VehicleConfig 
+{
     double wheelbase_l1{1.65};       // 1축 → 중심 거리
     double wheelbase_l2{3.0};       // 2축 → 중심 거리
     double track_width{2.533};        // 좌우 바퀴 간격
-    double max_steering_angle{0.5759};  // 33° = 0.5759 rad
+    
+    // (내측휠+외측휠)/2
+    // (33+27.4)/2 = 30.2° = 0.5271 rad
+    double max_steering_angle_outer{0.5271};  
+    // (30+23)/2 = 26.5° = 0.5271 rad
+    double max_steering_angle_inner{0.4625};  
 };
 
-class MotionControllerNode : public rclcpp::Node {
+class MotionControllerNode : public rclcpp::Node 
+{
 public:
     MotionControllerNode();
     ~MotionControllerNode() = default;
@@ -39,6 +47,6 @@ private:
     VehicleConfig config_;
 };
 
-} // namespace pagv_motion_controller
+} 
 
 #endif

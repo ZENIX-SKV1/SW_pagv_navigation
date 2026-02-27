@@ -20,13 +20,13 @@ find_package(behaviortree_cpp REQUIRED)
 include_directories(
   include
   #third_party
-  third_party/yaml-cpp/include
-  third_party/libvda5050pp/include/public/vda5050++
-  third_party/libvda5050pp/include/private
-  third_party/rapidjson/include  
+  # third_party/yaml-cpp/include
+  # third_party/libvda5050pp/include/public/vda5050++
+  # third_party/libvda5050pp/include/private
+  # third_party/rapidjson/include  
 )
 
-add_subdirectory(third_party/yaml-cpp)
+# add_subdirectory(third_party/yaml-cpp)
 
 add_executable(amr_core_node
   # Main

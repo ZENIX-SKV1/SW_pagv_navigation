@@ -41,7 +41,8 @@ void MotionControllerNode::cmd_vel_callback(const geometry_msgs::msg::Twist::Sha
     // Isaac Sim으로 직접 발행
     auto steering_msg = std_msgs::msg::Float32MultiArray();
     steering_msg.data.resize(4);
-    for (size_t i = 0; i < 4; ++i) {
+    for (size_t i = 0; i < 4; ++i) 
+    {
         steering_msg.data[i] = static_cast<float>(steering_angles[i]);
     }
     steering_pub_->publish(steering_msg);
@@ -66,7 +67,8 @@ void MotionControllerNode::compute_8wheel_control(double linear_vel, double angu
                                                    std::array<double, 4>& steering_angles,
                                                    std::array<double, 2>& wheel_speeds)
 {
-    if (std::abs(angular_vel) < 0.001) {
+    if (std::abs(angular_vel) < 0.001) 
+    {
         // 직진 - 모든 축 조향각 0
         steering_angles = {0.0, 0.0, 0.0, 0.0};
         wheel_speeds = {linear_vel, linear_vel};
@@ -77,11 +79,8 @@ void MotionControllerNode::compute_8wheel_control(double linear_vel, double angu
     double turning_radius = std::abs(linear_vel / angular_vel);
     
     // 차량 중심에서 각 축까지의 거리
-    // L1: 1축-중심, L2: 2축-중심, L3: 3축-중심, L4: 4축-중심
-    double L1 = config_.wheelbase_l1;  // 2.5m (1축 → 중심)
-    double L2 = config_.wheelbase_l2;  // 1.5m (2축 → 중심)
-    double L3 = config_.wheelbase_l3;  // 2.5m (3축 → 중심)
-    // L4는 대칭이므로 L1과 동일하게 간주 (4축은 후방)
+    double L1 = config_.wheelbase_l1;  // 4.65 [m] (1축 → 중심)
+    double L2 = config_.wheelbase_l2;  // 3.0 [m] (2축 → 중심)
     
     double track_width = config_.track_width;  // 2.0m
     
@@ -93,7 +92,8 @@ void MotionControllerNode::compute_8wheel_control(double linear_vel, double angu
     double icr_y = left_turn ? turning_radius : -turning_radius;
     
     //각 축의 좌우 바퀴 위치 (차량 중심 기준)
-    struct WheelPos {
+    struct WheelPos 
+    {
         double x;  // 전후 위치 (전방 +)
         double y;  // 좌우 위치 (좌측 +)
     };
@@ -107,15 +107,16 @@ void MotionControllerNode::compute_8wheel_control(double linear_vel, double angu
     WheelPos axle2_right = {L2, -track_width / 2.0};
     
     //3축 (후방 중간) - Left/Right
-    WheelPos axle3_left  = {-L3, track_width / 2.0};
-    WheelPos axle3_right = {-L3, -track_width / 2.0};
+    WheelPos axle3_left  = {-L2, track_width / 2.0};
+    WheelPos axle3_right = {-L2, -track_width / 2.0};
     
     //4축 (후방) - Left/Right
     WheelPos axle4_left  = {-L1, track_width / 2.0};
     WheelPos axle4_right = {-L1, -track_width / 2.0};
     
     //각 바퀴에서 ICR까지의 거리 및 조향각 계산
-    auto calc_steering = [&](const WheelPos& wheel) -> double {
+    auto calc_steering = [&](const WheelPos& wheel) -> double 
+    {
         // ICR 좌표: (0, icr_y)
         double dx = 0.0 - wheel.x;  // ICR.x - wheel.x
         double dy = icr_y - wheel.y; // ICR.y - wheel.y
@@ -141,12 +142,13 @@ void MotionControllerNode::compute_8wheel_control(double linear_vel, double angu
     double steer4 = (steer4_left + steer4_right) / 2.0;
     
     //조향각 제한 (±33° = ±0.5759 rad)
-    const double max_steer = config_.max_steering_angle;  // 0.785 rad (45°) → 33° = 0.5759 rad로 변경 필요
+    const double max_steer_outer = config_.max_steering_angle_outer;  // 0.785 rad (45°) → 33° = 0.5759 rad로 변경 필요
+    const double max_steer_inner = config_.max_steering_angle_inner;  // 0.785 rad (45°) → 33° = 0.5759 rad로 변경 필요
     
-    steer1 = std::clamp(steer1, -max_steer, max_steer);
-    steer2 = std::clamp(steer2, -max_steer, max_steer);
-    steer3 = std::clamp(steer3, -max_steer, max_steer);
-    steer4 = std::clamp(steer4, -max_steer, max_steer);
+    steer1 = std::clamp(steer1, -max_steer_outer, max_steer_outer);
+    steer2 = std::clamp(steer2, -max_steer_inner, max_steer_inner);
+    steer3 = std::clamp(steer3, -max_steer_inner, max_steer_inner);
+    steer4 = std::clamp(steer4, -max_steer_outer, max_steer_outer);
     
     //출력 (1축, 2축, 3축, 4축)
     steering_angles[0] = steer1;
