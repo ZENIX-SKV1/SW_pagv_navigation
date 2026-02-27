@@ -1,18 +1,20 @@
 # 소개
-
-
-# 주요기능
- - VDA5050 Protocol: 표준 FMS 통신 프로토콜 지원
- - BehaviorTree 기반 상태 관리: 5-Layer 계층 구조 (Mode/Safety/System/Mission/Navigation)
- - 8륜 4축 All-Wheel Steering: ICR 제어 알고리즘
- - 경로 추종: 직선 및 곡선(Arc) 경로 지원
- - Dead Reckoning Localization: 엔코더 기반 위치 추정 (향후 SLAM 확장 예정)
- - Isaac Sim 연동: ROS2 Bridge를 통한 시뮬레이션
-
-# SW 구조
-![Diagram](image/pagv_navigation.png)
-
-# SW Tree
+ 이 저장소에는 AMR(Autonomous Mobile Robot)의 네비게이션SW를 포함되어 있습니다.  
+ pagv_amr_core, pagv_localizer, pagv_motion_controller 총 3개의 패키지로 구성되어 있습니다. 
+ pagv_amr_core는 네비게이션 동작/판단, FMS통신, Planning, Safety를 담당하며, Behavior tree/ amr_core_node/ vda5050_protocol/ navigation 으로 구성되어 있습니다. 
+ pagv_motion_controller는 planning 출력(/cmd_vel)을 입력 받아, 차량모델에 맞는 제어출력(/steering_cmd, /velocity_cmd) 생성을 담당합니다. 
+ pagv_localizer는 map에서 차량의 위치와 자세 추정을 담당합니다.
+ 
+ - 주요기능
+   - VDA5050 Protocol: 표준 FMS 통신 프로토콜 지원
+   - BehaviorTree 기반 상태 관리: 5-Layer 계층 구조 (Mode/Safety/System/Mission/Navigation)
+   - 8륜 4축 All-Wheel Steering: ICR 제어 알고리즘
+   - 경로 추종: 직선 및 곡선(Arc) 경로 지원
+   - Dead Reckoning Localization: 엔코더 기반 위치 추정 (향후 SLAM 확장 예정)
+   - Isaac Sim 연동: ROS2 Bridge를 통한 시뮬레이션
+ 
+ ![Diagram](image/pagv_navigation.png)
+ 
 ```
 pagv_amr_nav
 ├── pagv_amr_core
@@ -134,7 +136,6 @@ mosquitto -v
 mosquitto_pub -h localhost -t "agv/v2/ZENIXROBOTICS/0000/order" -f curve.json
 ```
 
-# Data Flow(Order -> 주행)
 
 # Todo
 1. 프로젝트 폴더 및 파일 구조 설계[done]
