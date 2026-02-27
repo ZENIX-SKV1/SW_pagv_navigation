@@ -1,5 +1,5 @@
 # 소개
- 이 저장소에는 AMR(Autonomous Mobile Robot)의 네비게이션SW를 포함되어 있습니다.  
+ 이 저장소는 AMR(Autonomous Mobile Robot)의 네비게이션 SW를 포함하고 있습니다.  
  pagv_amr_core, pagv_localizer, pagv_motion_controller 총 3개의 패키지로 구성되어 있습니다. 
  pagv_amr_core는 네비게이션 동작/판단, FMS통신, Planning, Safety를 담당하며, Behavior tree/ amr_core_node/ vda5050_protocol/ navigation 으로 구성되어 있습니다. 
  pagv_motion_controller는 planning 출력(/cmd_vel)을 입력 받아, 차량모델에 맞는 제어출력(/steering_cmd, /velocity_cmd) 생성을 담당합니다. 
