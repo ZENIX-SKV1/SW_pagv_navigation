@@ -3,7 +3,7 @@
 
 namespace pagv_amr_core {
 
-// ============ Emergency Mode ============
+// Emergency Mode
 BT::NodeStatus CheckEmergency::tick()
 {
     auto emergency = config().blackboard->get<bool>(blackboard::EMERGENCY_ACTIVE);
@@ -18,21 +18,27 @@ BT::NodeStatus HandleEmergency::tick()
     return BT::NodeStatus::SUCCESS;
 }
 
-// ============ Manual Mode ============
+//Manual Mode
 BT::NodeStatus CheckManualMode::tick()
 {
     auto mode = config().blackboard->get<std::string>(blackboard::MODE);
     return (mode == "MANUAL") ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
 }
 
-BT::NodeStatus HandleManualMode::tick()
+BT::NodeStatus HandleManualMode::onStart()
 {
-    // Manual Mode 처리 (Joystick Control)
     config().blackboard->set(blackboard::NCU_STATUS, 150);
     return BT::NodeStatus::RUNNING;
 }
 
-// ============ Auto Mode ============
+BT::NodeStatus HandleManualMode::onRunning()
+{
+    // Manual Mode 유지 (Joystick Control 진행 중)
+    config().blackboard->set(blackboard::NCU_STATUS, 150);
+    return BT::NodeStatus::RUNNING;
+}
+
+//Auto Mode
 BT::NodeStatus CheckAutoMode::tick()
 {
     auto mode = config().blackboard->get<std::string>(blackboard::MODE);
@@ -43,13 +49,22 @@ BT::NodeStatus CheckAutoMode::tick()
 BT::NodeStatus IsAutoReady::tick()
 {
     auto ncu_status = config().blackboard->get<int>(blackboard::NCU_STATUS);
-    return (ncu_status == 0) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
+    return (ncu_status == 10) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
 }
 
-// XML: <Action ID="WaitMission"/>
-BT::NodeStatus WaitMission::tick()
+BT::NodeStatus WaitMission::onStart()
 {
-    // Mission 대기 중
+    // FMS 미션 대기 시작
+    return BT::NodeStatus::RUNNING;
+}
+
+BT::NodeStatus WaitMission::onRunning()
+{
+    // mission_active가 true가 되면 SUCCESS → AutoMoving으로 전환
+    auto mission_active = config().blackboard->get<bool>(blackboard::MISSION_ACTIVE);
+    if (mission_active) {
+        return BT::NodeStatus::SUCCESS;
+    }
     return BT::NodeStatus::RUNNING;
 }
 
@@ -60,20 +75,23 @@ BT::NodeStatus IsAutoMoving::tick()
     return (ncu_status == 100) ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
 }
 
-// XML: <Action ID="ExecuteMission"/>
-BT::NodeStatus ExecuteMission::tick()
+BT::NodeStatus ExecuteMission::onStart()
 {
-    // Mission execution 로직
-    auto mission_complete = config().blackboard->get<bool>(blackboard::MISSION_COMPLETE);
-    
-    if (mission_complete) {
-        return BT::NodeStatus::SUCCESS;
-    }
-    
+    // 미션 실행 시작
     return BT::NodeStatus::RUNNING;
 }
 
-// ============ Registration ============
+BT::NodeStatus ExecuteMission::onRunning()
+{
+    // 미션 완료 여부 확인
+    auto mission_complete = config().blackboard->get<bool>(blackboard::MISSION_COMPLETE);
+    if (mission_complete) {
+        return BT::NodeStatus::SUCCESS;
+    }
+    return BT::NodeStatus::RUNNING;
+}
+
+//Registration
 void RegisterModeLayerNodes(BT::BehaviorTreeFactory& factory)
 {
     factory.registerNodeType<CheckEmergency>("CheckEmergency");
@@ -87,4 +105,4 @@ void RegisterModeLayerNodes(BT::BehaviorTreeFactory& factory)
     factory.registerNodeType<ExecuteMission>("ExecuteMission");
 }
 
-} // namespace pagv_amr_core
+}

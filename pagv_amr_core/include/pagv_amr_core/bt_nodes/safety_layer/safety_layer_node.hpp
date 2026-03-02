@@ -7,7 +7,7 @@
 namespace pagv_amr_core 
 {
 
-// ============ Fault Detection ============
+// Fault Detection 
 class CheckFaults : public BT::ConditionNode 
 {
 public:
@@ -27,7 +27,7 @@ public:
     static BT::PortsList providedPorts() { return {}; }
 };
 
-// ============ Collision Prevention ============
+// Collision Prevention 
 class CheckCollisionRisk : public BT::ConditionNode 
 {
 public:
@@ -47,7 +47,7 @@ public:
     static BT::PortsList providedPorts() { return {}; }
 };
 
-// ============ Battery Management ============
+// Battery Management 
 class CheckBatteryLevel : public BT::ConditionNode 
 {
 public:

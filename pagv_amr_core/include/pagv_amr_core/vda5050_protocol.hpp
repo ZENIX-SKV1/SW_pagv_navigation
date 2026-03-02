@@ -51,6 +51,9 @@ public:
     void enableLogging(const std::string &path);
     void disableLogging();
 
+    bool isConnected() const;
+    bool isAutoReadyPermitted() const;
+
 private:
     // MQTT callback handler
     class Vda5050MqttCallback : public mqtt::callback 
@@ -106,6 +109,8 @@ private:
     // Order Merge support - sequenceId 기반 빠른 검색
     std::map<int, NodeInfo> node_by_sequence_;   // sequenceId -> NodeInfo
     std::map<int, EdgeInfo> edge_by_sequence_;   // sequenceId -> EdgeInfo
+
+    bool factsheet_sent_ = false;
     
     // Message creation functions
     std::string makeVisualizationMessage(IAmr* amr);

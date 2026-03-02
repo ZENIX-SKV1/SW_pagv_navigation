@@ -7,7 +7,7 @@
 namespace pagv_amr_core 
 {
 
-// ============ Emergency Mode ============
+// Emergency Mode 
 class CheckEmergency : public BT::ConditionNode 
 {
 public:
@@ -26,7 +26,7 @@ public:
     static BT::PortsList providedPorts() { return {}; }
 };
 
-// ============ Manual Mode ============
+// Manual Mode 
 class CheckManualMode : public BT::ConditionNode 
 {
 public:
@@ -36,16 +36,18 @@ public:
     static BT::PortsList providedPorts() { return {}; }
 };
 
-class HandleManualMode : public BT::SyncActionNode 
+class HandleManualMode : public BT::StatefulActionNode 
 {
 public:
     HandleManualMode(const std::string& name, const BT::NodeConfig& config)
-        : BT::SyncActionNode(name, config) {}
-    BT::NodeStatus tick() override;
+        : BT::StatefulActionNode(name, config) {}
+    BT::NodeStatus onStart() override;
+    BT::NodeStatus onRunning() override;
+    void onHalted() override {}
     static BT::PortsList providedPorts() { return {}; }
 };
 
-// ============ Auto Mode ============
+// Auto Mode 
 class CheckAutoMode : public BT::ConditionNode 
 {
 public:
@@ -66,12 +68,14 @@ public:
 };
 
 // XML: <Action ID="WaitMission"/>
-class WaitMission : public BT::SyncActionNode 
+class WaitMission : public BT::StatefulActionNode 
 {
 public:
     WaitMission(const std::string& name, const BT::NodeConfig& config)
-        : BT::SyncActionNode(name, config) {}
-    BT::NodeStatus tick() override;
+        : BT::StatefulActionNode(name, config) {}
+    BT::NodeStatus onStart() override;
+    BT::NodeStatus onRunning() override;
+    void onHalted() override {}
     static BT::PortsList providedPorts() { return {}; }
 };
 
@@ -86,18 +90,20 @@ public:
 };
 
 // XML: <Action ID="ExecuteMission"/>
-class ExecuteMission : public BT::SyncActionNode 
+class ExecuteMission : public BT::StatefulActionNode 
 {
 public:
     ExecuteMission(const std::string& name, const BT::NodeConfig& config)
-        : BT::SyncActionNode(name, config) {}
-    BT::NodeStatus tick() override;
+        : BT::StatefulActionNode(name, config) {}
+    BT::NodeStatus onStart() override;
+    BT::NodeStatus onRunning() override;
+    void onHalted() override {}
     static BT::PortsList providedPorts() { return {}; }
 };
 
 // Registration
 void RegisterModeLayerNodes(BT::BehaviorTreeFactory& factory);
 
-} // namespace pagv_amr_core
+} 
 
 #endif

@@ -10,7 +10,6 @@ class PathFollower
 {
 public:
     PathFollower() = default;
-    
     geometry_msgs::msg::Twist compute_velocity(double x, double y, double theta,
                                                  double goal_x, double goal_y);
 };

@@ -3,7 +3,7 @@
 
 namespace pagv_amr_core {
 
-// ============ Fault Detection ============
+//Fault Detection
 BT::NodeStatus CheckFaults::tick()
 {
     auto fault = config().blackboard->get<bool>(blackboard::FAULT_DETECTED);
@@ -19,7 +19,7 @@ BT::NodeStatus TriggerEmergency::tick()
     return BT::NodeStatus::SUCCESS;
 }
 
-// ============ Collision Prevention ============
+//Collision Prevention
 BT::NodeStatus CheckCollisionRisk::tick()
 {
     auto collision = config().blackboard->get<bool>(blackboard::COLLISION_RISK);
@@ -35,7 +35,7 @@ BT::NodeStatus SlowDown::tick()
     return BT::NodeStatus::SUCCESS;
 }
 
-// ============ Battery Management ============
+//Battery Management
 BT::NodeStatus CheckBatteryLevel::tick()
 {
     auto soc = config().blackboard->get<double>(blackboard::BATTERY_SOC);
@@ -50,7 +50,7 @@ BT::NodeStatus RequestCharging::tick()
     return BT::NodeStatus::SUCCESS;
 }
 
-// ============ Registration ============
+//Registration
 void RegisterSafetyLayerNodes(BT::BehaviorTreeFactory& factory)
 {
     factory.registerNodeType<CheckFaults>("CheckFaults");
@@ -61,4 +61,4 @@ void RegisterSafetyLayerNodes(BT::BehaviorTreeFactory& factory)
     factory.registerNodeType<RequestCharging>("RequestCharging");
 }
 
-} // namespace pagv_amr_core
+}

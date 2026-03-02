@@ -1,6 +1,9 @@
 #ifndef PAGV_AMR_CORE__AMR_CORE_NODE_HPP_
 #define PAGV_AMR_CORE__AMR_CORE_NODE_HPP_
 
+#include <std_msgs/msg/bool.hpp>
+#include <sensor_msgs/msg/nav_sat_fix.hpp>
+
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <nav_msgs/msg/odometry.hpp>
@@ -21,6 +24,7 @@
 #include "pagv_amr_core/bt_nodes/system_layer/system_layer_node.hpp"
 #include "pagv_amr_core/bt_nodes/mission_layer/mission_layer_node.hpp"
 #include "pagv_amr_core/bt_nodes/navigation_layer/navigation_layer_node.hpp"
+
 
 namespace pagv_amr_core 
 {
@@ -139,7 +143,8 @@ private:
     
     // State Variables
     Pose current_pose_;
-    bool pose_initialized_{false};
+    // bool pose_initialized_{false};
+    bool pose_initialized_{true}; //temporary test 
     
     // Configuration
     std::string agv_id_;
@@ -167,6 +172,29 @@ private:
     bool mission_complete_{false};
     bool goal_reached_{false};
     double localization_quality_{0.02};
+
+    bool vcu_alive_            = true;  // /vcu/alive 토픽
+    bool vcu_hw_ok_            = true;  // /vcu/hw_test_pass 토픽
+    bool radar_l_connected_    = true;  // /sensor/radar/left/status
+    bool radar_r_connected_    = true;  // /sensor/radar/right/status
+    bool cam_f_connected_      = true;  // /sensor/camera/front/status
+    bool cam_b_connected_      = true;  // /sensor/camera/rear/status
+    bool cam_l_connected_      = true;  // /sensor/camera/left/status
+    bool cam_r_connected_      = true;  // /sensor/camera/right/status
+    bool gnss_connected_       = true;  // /gnss/fix (RTK status >= 2)
+    bool lidar_connected_      = true;  // /sensor/lidar/status
+    double current_pose_health_ = 90.0;  // 0~100, RTK 정확도 기반 품질 점수
+
+    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr       vcu_alive_sub_;
+    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr       vcu_hw_sub_;
+    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr       radar_l_sub_;
+    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr       radar_r_sub_;
+    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr       cam_f_sub_;
+    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr       cam_b_sub_;
+    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr       cam_l_sub_;
+    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr       cam_r_sub_;
+    rclcpp::Subscription<sensor_msgs::msg::NavSatFix>::SharedPtr gnss_sub_;
+    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr       lidar_sub_;
     
     // Action 실행 상태
     struct ExecutingAction 
@@ -177,30 +205,6 @@ private:
         double duration;
     };
     std::vector<ExecutingAction> executing_actions_;
-
-    template<typename T>
-    void syncFromBlackboard(const std::string& key, T& member_var, const std::string& label) 
-    {
-        if (!blackboard_) return;
-        try 
-        {
-            if (blackboard_->getAny(key)) 
-            {
-                T bt_value = blackboard_->get<T>(key);
-                if (bt_value != member_var) 
-                {
-                    RCLCPP_INFO(this->get_logger(), "[AMRCore] BT changed %s: %s -> %s",
-                               label.c_str(), std::to_string(member_var).c_str(), std::to_string(bt_value).c_str());
-
-                    member_var = bt_value;
-                }
-            }
-        }
-        catch (const std::exception& e) 
-        {
-            RCLCPP_DEBUG(this->get_logger(), "[AMRCore] Sync failed for %s: %s", key.c_str(), e.what());
-        }
-    }
 };
 
 }

@@ -15,6 +15,7 @@ find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(behaviortree_cpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 # Include directories
 include_directories(
@@ -62,6 +63,7 @@ ament_target_dependencies(amr_core_node
   std_msgs
   geometry_msgs
   nav_msgs
+  sensor_msgs
   behaviortree_cpp
 )
 

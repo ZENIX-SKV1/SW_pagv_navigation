@@ -3,30 +3,31 @@
 
 namespace pagv_amr_core {
 
-// ============ Mission Active Check ============
+//Mission Active Check
 BT::NodeStatus CheckMissionActive::tick()
 {
     auto mission_active = config().blackboard->get<bool>(blackboard::MISSION_ACTIVE);
     return mission_active ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
 }
 
-// ============ Execute Order Node ============
-BT::NodeStatus ExecuteOrderNode::tick()
+//Execute Order Node
+BT::NodeStatus ExecuteOrderNode::onStart()
 {
     auto mission_complete = config().blackboard->get<bool>(blackboard::MISSION_COMPLETE);
-    
-    if (mission_complete) {
-        return BT::NodeStatus::SUCCESS;
-    }
-    
-    return BT::NodeStatus::RUNNING;
+    return mission_complete ? BT::NodeStatus::SUCCESS : BT::NodeStatus::RUNNING;
 }
 
-// ============ Registration ============
+BT::NodeStatus ExecuteOrderNode::onRunning()
+{
+    auto mission_complete = config().blackboard->get<bool>(blackboard::MISSION_COMPLETE);
+    return mission_complete ? BT::NodeStatus::SUCCESS : BT::NodeStatus::RUNNING;
+}
+
+//Registration
 void RegisterMissionLayerNodes(BT::BehaviorTreeFactory& factory)
 {
     factory.registerNodeType<CheckMissionActive>("CheckMissionActive");
     factory.registerNodeType<ExecuteOrderNode>("ExecuteOrderNode");
 }
 
-} // namespace pagv_amr_core
+}

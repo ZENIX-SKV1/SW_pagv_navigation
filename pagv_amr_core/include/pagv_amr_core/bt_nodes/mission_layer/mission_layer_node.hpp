@@ -17,12 +17,14 @@ public:
 };
 
 // XML: <ExecuteOrderNode/>
-class ExecuteOrderNode : public BT::SyncActionNode 
+class ExecuteOrderNode : public BT::StatefulActionNode 
 {
 public:
     ExecuteOrderNode(const std::string& name, const BT::NodeConfig& config)
-        : BT::SyncActionNode(name, config) {}
-    BT::NodeStatus tick() override;
+        : BT::StatefulActionNode(name, config) {}
+    BT::NodeStatus onStart() override;
+    BT::NodeStatus onRunning() override;
+    void onHalted() override {}
     static BT::PortsList providedPorts() { return {}; }
 };
 

@@ -2,77 +2,83 @@
 <root BTCPP_format="4">
     <BehaviorTree ID="PAGV_MainTree">
         <ReactiveSequence name="Root_20Hz">
-            
-            <!-- Layer 0: Mode Control -->
+
+            <!-- Layer 1: Mode Control -->
+            <!-- 어떤 모드도 매칭 안 될 경우 AlwaysSuccess로 통과 -->
             <Fallback name="ModeLayer">
-                <!-- Emergency Mode (최우선) -->
                 <Sequence name="EmergencyMode">
                     <CheckEmergency/>
-                    <Action ID="HandleEmergency"/>
+                    <HandleEmergency/>
                 </Sequence>
-                
-                <!-- Manual Mode -->
                 <Sequence name="ManualMode">
                     <CheckManualMode/>
-                    <Action ID="HandleManualMode"/>
+                    <HandleManualMode/>
                 </Sequence>
-                
-                <!-- Auto Mode -->
                 <Sequence name="AutoMode">
                     <CheckAutoMode/>
                     <Fallback name="AutoState">
-                        <Sequence name="AutoReady">
-                            <Condition ID="IsAutoReady"/>
-                            <Action ID="WaitMission"/>
-                        </Sequence>
-                        
-                        <Sequence name="AutoMoving">
-                            <Condition ID="IsAutoMoving"/>
-                            <Action ID="ExecuteMission"/>
-                        </Sequence>
+                        <ReactiveSequence name="AutoReady">
+                            <IsAutoReady/>
+                            <WaitMission/>
+                        </ReactiveSequence>
+                        <ReactiveSequence name="AutoMoving">
+                            <IsAutoMoving/>
+                            <ExecuteMission/>
+                        </ReactiveSequence>
                     </Fallback>
                 </Sequence>
+                <AlwaysSuccess/>
             </Fallback>
-            
-            <!-- Layer 1: Safety -->
+
+
+            <!-- Layer 2: Safety (항상 AlwaysSuccess로 끝남) -->
             <Fallback name="SafetyLayer">
                 <Sequence name="FaultDetection">
                     <CheckFaults/>
-                    <Action ID="TriggerEmergency"/>
+                    <TriggerEmergency/>
                 </Sequence>
-                
                 <Sequence name="CollisionPrevention">
                     <CheckCollisionRisk/>
-                    <Action ID="SlowDown"/>
+                    <SlowDown/>
                 </Sequence>
-                
                 <Sequence name="BatteryManagement">
                     <CheckBatteryLevel/>
-                    <Action ID="RequestCharging"/>
+                    <RequestCharging/>
                 </Sequence>
-                
                 <AlwaysSuccess/>
             </Fallback>
-            
-            <!-- Layer 2: System -->
-            <Sequence name="SystemLayer">
+
+            <!-- Layer 3: System Init -->
+            <!-- CheckSystemInitialized: 이미 초기화됨 → SUCCESS (건너뜀)  -->
+            <!-- InitializeSystem: 초기화 중 → RUNNING, 완료 → SUCCESS     -->
+            <!-- InitializeSystem FAILURE 시 전체 트리 중단        -->
+            <Fallback name="SystemLayer">
                 <CheckSystemInitialized/>
+                <Sequence name="SystemInitSequence">
+                    <CheckSystemNotInitialized/>
+                    <InitializeSystem/>
+                </Sequence>
+            </Fallback>
+
+            <!-- Layer 4: Mission (미션 없으면 AlwaysSuccess로 통과) -->
+            <Fallback name="MissionLayer">
+                <Sequence name="MissionExecution">
+                    <CheckMissionActive/>
+                    <ExecuteOrderNode/>
+                </Sequence>
                 <AlwaysSuccess/>
-            </Sequence>
-            
-            <!-- Layer 3: Mission -->
-            <Sequence name="MissionLayer">
-                <CheckMissionActive/>
-                <ExecuteOrderNode/>
-            </Sequence>
-            
-            <!-- Layer 4: Navigation -->
-            <Sequence name="NavigationLayer">
-                <Condition ID="NavigationActive"/>
-                <NavigationControlNode/>
-                <PublishCmdVelNode/>
-            </Sequence>
-            
+            </Fallback>
+
+            <!-- Layer 5: Navigation (비활성이면 AlwaysSuccess로 통과) -->
+            <Fallback name="NavigationLayer">
+                <Sequence name="NavigationExecution">
+                    <NavigationActive/>
+                    <NavigationControlNode/>
+                    <PublishCmdVelNode/>
+                </Sequence>
+                <AlwaysSuccess/>
+            </Fallback>
+
         </ReactiveSequence>
     </BehaviorTree>
 </root>

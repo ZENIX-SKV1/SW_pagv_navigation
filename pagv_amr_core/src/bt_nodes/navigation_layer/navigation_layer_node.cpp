@@ -16,42 +16,48 @@ BT::NodeStatus NavigationActive::tick()
 }
 
 // XML: <NavigationControlNode/>
-BT::NodeStatus NavigationControlNode::tick()
+BT::NodeStatus NavigationControlNode::onStart()
 {
-    // Navigation control 로직
-    // - Localization quality check
-    // - Path following
-    
-    auto localization_quality = config().blackboard->get<double>(blackboard::LOCALIZATION_QUALITY);
-    
-    if (localization_quality > 0.5) {
-        // Localization lost - stop
-        config().blackboard->set(blackboard::TARGET_SPEED, 0.0);
+    return onRunning();
+}
+
+BT::NodeStatus NavigationControlNode::onRunning()
+{
+    auto bb = config().blackboard;
+
+    // localization_quality: 0~100 스케일 (pose_health와 동일 기준)
+    // 85 이상 = RTK 정상, 50~85 = 감속, 50 미만 = 정지
+    auto localization_quality = bb->get<double>(blackboard::LOCALIZATION_QUALITY);
+
+    if (localization_quality < 50.0) {
+        // Localization lost → 정지
+        bb->set(blackboard::TARGET_SPEED, 0.0);
+        RCLCPP_WARN_STREAM_ONCE(rclcpp::get_logger("BT"),
+            "[Nav] Localization lost (" << localization_quality << ") - stopping");
         return BT::NodeStatus::FAILURE;
-    } else if (localization_quality > 0.05) {
-        // Bad localization - reduce speed
-        config().blackboard->set(blackboard::TARGET_SPEED, 0.5);
+    } else if (localization_quality < 85.0) {
+        // 측위 불안정 → 감속
+        bb->set(blackboard::TARGET_SPEED, 0.5);
     }
-    
-    auto goal_reached = config().blackboard->get<bool>(blackboard::GOAL_REACHED);
-    
+
+    auto goal_reached = bb->get<bool>(blackboard::GOAL_REACHED);
     if (goal_reached) {
         return BT::NodeStatus::SUCCESS;
     }
-    
+
     return BT::NodeStatus::RUNNING;
 }
+
 
 // XML: <PublishCmdVelNode/>
 BT::NodeStatus PublishCmdVelNode::tick()
 {
     // cmd_vel 발행은 AMR Core Node에서 처리
     // 여기서는 발행 가능 상태만 체크
-    
     return BT::NodeStatus::SUCCESS;
 }
 
-// ============ Registration ============
+//Registration
 void RegisterNavigationLayerNodes(BT::BehaviorTreeFactory& factory)
 {
     factory.registerNodeType<NavigationActive>("NavigationActive");
@@ -59,4 +65,4 @@ void RegisterNavigationLayerNodes(BT::BehaviorTreeFactory& factory)
     factory.registerNodeType<PublishCmdVelNode>("PublishCmdVelNode");
 }
 
-} // namespace pagv_amr_core
+} 

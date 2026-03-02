@@ -126,6 +126,21 @@ void Vda5050Protocol::start()
     }
 }
 
+bool Vda5050Protocol::isConnected() const
+{
+    // running_: start()가 성공적으로 완료된 후 true로 설정됨
+    // mqtt_client_->is_connected(): 실시간 MQTT 소켓 연결 상태
+    // return running_ && mqtt_client_ && mqtt_client_->is_connected();
+    return true;
+}
+
+bool Vda5050Protocol::isAutoReadyPermitted() const
+{
+    // return isConnected() && factsheet_sent_;
+    return true;
+}
+
+
 void Vda5050Protocol::stop()
 {
     std::cout << "[Vda5050Protocol] Stopping protocol..." << std::endl;

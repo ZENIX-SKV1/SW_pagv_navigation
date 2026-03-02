@@ -3,6 +3,7 @@
 
 #include "behaviortree_cpp/bt_factory.h"      
 #include "behaviortree_cpp/behavior_tree.h"
+#include <rclcpp/rclcpp.hpp>
 
 namespace pagv_amr_core 
 {
@@ -17,13 +18,14 @@ public:
     static BT::PortsList providedPorts() { return {}; }
 };
 
-// XML: <NavigationControlNode/>
-class NavigationControlNode : public BT::SyncActionNode 
+class NavigationControlNode : public BT::StatefulActionNode
 {
 public:
     NavigationControlNode(const std::string& name, const BT::NodeConfig& config)
-        : BT::SyncActionNode(name, config) {}
-    BT::NodeStatus tick() override;
+        : BT::StatefulActionNode(name, config) {}
+    BT::NodeStatus onStart() override;
+    BT::NodeStatus onRunning() override;
+    void onHalted() override {}
     static BT::PortsList providedPorts() { return {}; }
 };
 
@@ -40,6 +42,6 @@ public:
 // Registration
 void RegisterNavigationLayerNodes(BT::BehaviorTreeFactory& factory);
 
-} // namespace pagv_amr_core
+} 
 
 #endif
